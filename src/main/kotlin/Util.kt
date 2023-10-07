@@ -23,11 +23,16 @@ object Util {
         return mm * (72f / INCH_TO_MM)
     }
 
+    fun pathFromResource(name: String): String {
+        val classLoader = Thread.currentThread().getContextClassLoader()
+        val url = classLoader.getResource(name) ?: error("resource not found")
+        return url.path
+    }
+
     @Throws(IOException::class)
     fun loadFont(doc: PDDocument): PDType0Font {
-        val classLoader = Thread.currentThread().getContextClassLoader()
-        val url = classLoader.getResource("font/NotoSansJP-Regular.ttf") ?: error("font not found")
-        return RandomAccessReadBufferedFile(File(url.path)).use { buff ->
+        val path = pathFromResource("font/NotoSansJP-Regular.ttf")
+        return RandomAccessReadBufferedFile(File(path)).use { buff ->
             TTFParser().parse(buff).use { ttf ->
                 PDType0Font.load(doc, ttf, true)
             }
